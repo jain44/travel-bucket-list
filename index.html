@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Bucket List 🌍</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+*{box-sizing:border-box;scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:radial-gradient(circle at top,#0a0f24,#050810);
+  color:#fff;
+  overflow-x:hidden;
+}
+
+/* HEADER */
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1rem 2rem;background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;
+}
+h1{color:#00ffff;letter-spacing:2px;}
+nav a{
+  margin:0 1rem;text-decoration:none;color:#fff;font-weight:500;
+  transition:.3s;
+}
+nav a:hover{color:#00ffff;text-shadow:0 0 10px #00ffff;}
+
+/* CAROUSEL */
+.carousel{position:relative;width:100%;height:85vh;overflow:hidden;}
+.carousel img{
+  width:100%;height:85vh;object-fit:cover;position:absolute;top:0;left:0;
+  opacity:0;transition:opacity 1.5s ease;
+}
+.carousel img.active{opacity:1;}
+.carousel .caption{
+  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,0.5);padding:1rem 2rem;border-radius:30px;
+  font-size:1.5rem;font-weight:600;color:#00ffff;animation:fadeInUp 1s ease;
+}
+@keyframes fadeInUp{from{opacity:0;transform:translate(-50%,20px);}to{opacity:1;transform:translate(-50%,0);}}
+
+/* SECTIONS */
+.section{display:none;text-align:center;padding:3rem 2rem;min-height:90vh;}
+.section.active{display:block;animation:fadeIn .8s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* INPUT + BUTTONS */
+button{
+  background:#00ffff;color:#000;border:none;padding:.7rem 1.5rem;
+  border-radius:25px;font-weight:bold;cursor:pointer;transition:.3s;
+}
+button:hover{background:#00cccc;transform:scale(1.05);}
+input{
+  width:60%;padding:.7rem;border-radius:20px;border:none;outline:none;
+  background:rgba(255,255,255,0.1);color:white;font-size:1rem;
+  text-align:center;
+}
+
+/* CARDS */
+.cards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;padding:2rem;
+}
+.card{
+  background:rgba(255,255,255,0.08);border-radius:20px;padding:1.2rem;
+  transition:.3s;box-shadow:0 0 10px rgba(0,255,255,0.2);
+}
+.card.visited{border:2px solid #00ffff;opacity:.85;}
+.card:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,255,255,0.3);}
+
+/* MAP */
+#map{
+  height:80vh;width:90%;max-width:1100px;margin:2rem auto;border-radius:20px;
+  box-shadow:0 0 20px rgba(0,255,255,0.2);
+}
+
+/* ABOUT */
+.about-box{
+  background:rgba(255,255,255,0.05);padding:2rem;border-radius:20px;
+  max-width:800px;margin:auto;box-shadow:0 0 20px rgba(0,255,255,0.1);
+}
+
+/* FOOTER */
+footer{text-align:center;padding:1rem;font-size:.9rem;color:#aaa;background:rgba(255,255,255,0.05);}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  input{width:80%;}
+  nav a{margin:0 .5rem;font-size:.9rem;}
+  .carousel .caption{font-size:1rem;bottom:40px;padding:.5rem 1rem;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🚀 DreamTrip Portal</h1>
+  <nav>
+    <a href="#" class="nav-link" data-section="home">Home</a>
+    <a href="#" class="nav-link" data-section="list">My List</a>
+    <a href="#" class="nav-link" data-section="mapSection">Map</a>
+    <a href="#" class="nav-link" data-section="about">About</a>
+  </nav>
+</header>
+
+<!-- HOME -->
+<section id="home" class="section active">
+  <div class="carousel">
+    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" class="active" alt="Beach">
+    <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470" alt="Mountains">
+    <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1" alt="City">
+    <img src="https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef" alt="Desert">
+    <div class="caption">“The world is yours to explore.” 🌏</div>
+  </div>
+  <h2 style="margin-top:2rem;">Ready for takeoff?</h2>
+  <p>Start building your ultimate bucket list of dream destinations.</p>
+  <button id="startBtn">🧭 Begin My Journey</button>
+</section>
+
+<!-- LIST -->
+<section id="list" class="section">
+  <h2>My Travel Bucket List ✈️</h2>
+  <p style="color:#aaa;">Add the places that call your soul — from beaches to spaceports!</p>
+  <div class="input-group">
+    <input type="text" id="destinationInput" placeholder="🌍 Type a place... maybe 'Bali', 'Tokyo', or 'The Moon'?">
+    <button id="addBtn">Add Destination ➕</button>
+  </div>
+  <div class="cards" id="destinationCards"></div>
+</section>
+
+<!-- MAP -->
+<section id="mapSection" class="section">
+  <h2>Explore the Interactive World Map 🗺️</h2>
+  <p>✨ Click anywhere to mark it as *visited*! Your adventures glow in cyan.</p>
+  <div id="map"></div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section">
+  <h2>About This Project 💡</h2>
+  <div class="about-box">
+    <p>
+      <b>DreamTrip Portal</b> is a futuristic travel planner built for dreamers and explorers.  
+      Create your personal map of memories, from the highest peaks to cosmic journeys beyond Earth.
+      <br><br>
+      Crafted with ❤️ using <b>HTML</b>, <b>CSS</b>, <b>JavaScript</b>, and <b>Leaflet Maps</b>.
+      <br><br>
+      “Jobs fill your pocket, but adventures fill your soul.” 🌠
+    </p>
+  </div>
+</section>
+
+<footer>
+  <p>✨ Crafted for IP Project 2025 | Designed by [Your Name] ✨</p>
+</footer>
+
+<<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  const links=document.querySelectorAll('.nav-link');
+  const sections=document.querySelectorAll('.section');
+  const input=document.getElementById('destinationInput');
+  const addBtn=document.getElementById('addBtn');
+  const cards=document.getElementById('destinationCards');
+  const startBtn=document.getElementById('startBtn');
+  let destinations=JSON.parse(localStorage.getItem('destinations'))||[];
+
+  function showSection(id){
+    sections.forEach(sec=>sec.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  links.forEach(link=>{
+    link.addEventListener('click',e=>{
+      e.preventDefault();showSection(link.dataset.section);
+      if(link.dataset.section==="mapSection"){setTimeout(()=>map.invalidateSize(),300);}
+    });
+  });
+  if(startBtn){startBtn.addEventListener('click',()=>showSection('list'));}
+
+  function save(){localStorage.setItem('destinations',JSON.stringify(destinations));}
+  function render(){
+    cards.innerHTML='';
+    if(destinations.length===0){
+      cards.innerHTML='<p>🧳 No destinations yet... your passport awaits adventure!</p>';
+      return;
+    }
+    destinations.forEach((dest,i)=>{
+      const div=document.createElement('div');
+      div.className='card';if(dest.visited)div.classList.add('visited');
+      div.innerHTML=`
+        <h3>${dest.name}</h3>
+        <p>Status: ${dest.visited?'🌟 Visited':'💭 Wishlist'}</p>
+        <button onclick="toggleVisited(${i})">${dest.visited?'Unmark':'Mark Visited'}</button>
+        <button onclick="deleteDest(${i})">Delete</button>`;
+      cards.appendChild(div);
+    });
+    loadMarkers();
+  }
+
+  window.toggleVisited=i=>{destinations[i].visited=!destinations[i].visited;save();render();}
+  window.deleteDest=i=>{destinations.splice(i,1);save();render();}
+
+  /* === MAP === */
+  const map=L.map('map').setView([20,0],2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:5,minZoom:2,attribution:'© OpenStreetMap'
+  }).addTo(map);
+
+  let markers=[];
+  function loadMarkers(){
+    markers.forEach(m=>map.removeLayer(m));markers=[];
+    destinations.filter(d=>d.coords).forEach(d=>{
+      const m=L.circleMarker(d.coords,{
+        color:'#00ffff',radius:6,fillOpacity:0.9
+      }).addTo(map).bindPopup(`<b>${d.name}</b><br>🌍 ${d.visited?'Visited!':'Wishlist'}`);
+      markers.push(m);
+    });
+  }
+
+  map.on('click',e=>{
+    const name=prompt("🌟 Name this place you've discovered:");
+    if(!name)return;
+    const newPlace={name,visited:true,coords:[e.latlng.lat,e.latlng.lng]};
+    destinations.push(newPlace);save();render();
+  });
+
+  /* === ADD DESTINATION MANUALLY (with geocoding) === */
+  addBtn.addEventListener('click',()=>{
+    const name=input.value.trim();
+    if(!name){alert("✈️ Please enter a place before taking off!");return;}
+    input.value='';
+    // Call free Nominatim API to find coordinates
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name)}`)
+      .then(res=>res.json())
+      .then(data=>{
+        if(data.length>0){
+          const coords=[parseFloat(data[0].lat),parseFloat(data[0].lon)];
+          destinations.push({name,visited:false,coords});
+          save();render();
+        } else {
+          alert("⚠️ Could not locate that place on the map. Added to list only.");
+          destinations.push({name,visited:false,coords:null});
+          save();render();
+        }
+      })
+      .catch(()=>{
+        alert("🌐 Network issue while locating place.");
+        destinations.push({name,visited:false,coords:null});
+        save();render();
+      });
+  });
+
+  render();
+
+  /* === CAROUSEL === */
+  const imgs=document.querySelectorAll('.carousel img');
+  const caption=document.querySelector('.carousel .caption');
+  const captions=[
+    "“The world is yours to explore.” 🌏",
+    "“Climb mountains not so the world can see you, but so you can see the world.” ⛰️",
+    "“Wander often, wonder always.” 🌃",
+    "“Adventure awaits beyond the horizon.” 🏜️"
+  ];
+  let cur=0;
+  setInterval(()=>{
+    imgs[cur].classList.remove('active');
+    cur=(cur+1)%imgs.length;
+    imgs[cur].classList.add('active');
+    caption.textContent=captions[cur];
+  },4000);
+});
+</script>
+
+
+</body>
+</html>
