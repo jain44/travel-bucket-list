@@ -3,21 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Travel Bucket List 🌍</title>
-
-<!-- Leaflet CSS -->
+<title>DreamTrip Portal 🌍</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
-
 *{box-sizing:border-box;scroll-behavior:smooth;}
 body{
-  margin:0;
-  font-family:'Poppins',sans-serif;
+  margin:0;font-family:'Poppins',sans-serif;
   background:radial-gradient(circle at top,#0a0f24,#050810);
-  color:#fff;
-  overflow-x:hidden;
+  color:#fff;overflow-x:hidden;
 }
 
 /* HEADER */
@@ -28,12 +23,19 @@ header{
 }
 h1{color:#00ffff;letter-spacing:2px;}
 nav a{
-  margin:0 1rem;text-decoration:none;color:#fff;font-weight:500;
-  transition:.3s;
+  margin:0 1rem;text-decoration:none;color:#fff;font-weight:600;
+  transition:.3s;padding:.4rem .8rem;border-radius:10px;
 }
-nav a:hover{color:#00ffff;text-shadow:0 0 10px #00ffff;}
+nav a.active, nav a:hover{
+  background:#00ffff;color:#000;text-shadow:none;
+}
 
-/* CAROUSEL */
+/* SECTIONS */
+.section{display:none;text-align:center;padding:3rem 2rem;min-height:90vh;}
+.section.active{display:block;animation:fadeIn .8s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* HOME CAROUSEL */
 .carousel{position:relative;width:100%;height:85vh;overflow:hidden;}
 .carousel img{
   width:100%;height:85vh;object-fit:cover;position:absolute;top:0;left:0;
@@ -43,26 +45,22 @@ nav a:hover{color:#00ffff;text-shadow:0 0 10px #00ffff;}
 .carousel .caption{
   position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
   background:rgba(0,0,0,0.5);padding:1rem 2rem;border-radius:30px;
-  font-size:1.5rem;font-weight:600;color:#00ffff;animation:fadeInUp 1s ease;
+  font-size:1.5rem;font-weight:600;color:#00ffff;
 }
-@keyframes fadeInUp{from{opacity:0;transform:translate(-50%,20px);}to{opacity:1;transform:translate(-50%,0);}}
 
-/* SECTIONS */
-.section{display:none;text-align:center;padding:3rem 2rem;min-height:90vh;}
-.section.active{display:block;animation:fadeIn .8s ease;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-
-/* INPUT + BUTTONS */
+/* BUTTONS */
 button{
   background:#00ffff;color:#000;border:none;padding:.7rem 1.5rem;
   border-radius:25px;font-weight:bold;cursor:pointer;transition:.3s;
 }
 button:hover{background:#00cccc;transform:scale(1.05);}
-input{
-  width:60%;padding:.7rem;border-radius:20px;border:none;outline:none;
-  background:rgba(255,255,255,0.1);color:white;font-size:1rem;
-  text-align:center;
+
+/* INPUT */
+input,select,textarea{
+  width:100%;padding:.7rem;border-radius:10px;border:none;outline:none;
+  background:rgba(255,255,255,0.1);color:white;font-size:1rem;margin:.4rem 0;
 }
+textarea{resize:none;}
 
 /* CARDS */
 .cards{
@@ -74,7 +72,7 @@ input{
   transition:.3s;box-shadow:0 0 10px rgba(0,255,255,0.2);
 }
 .card.visited{border:2px solid #00ffff;opacity:.85;}
-.card:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,255,255,0.3);}
+.card:hover{transform:scale(1.05);}
 
 /* MAP */
 #map{
@@ -91,10 +89,24 @@ input{
 /* FOOTER */
 footer{text-align:center;padding:1rem;font-size:.9rem;color:#aaa;background:rgba(255,255,255,0.05);}
 
+/* MODAL */
+.modal{
+  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
+  justify-content:center;align-items:center;z-index:1000;
+}
+.modal-content{
+  background:rgba(255,255,255,0.08);padding:2rem;border-radius:20px;
+  width:90%;max-width:400px;text-align:left;box-shadow:0 0 20px rgba(0,255,255,0.2);
+}
+.modal h3{color:#00ffff;text-align:center;margin-top:0;}
+.close{
+  position:absolute;right:20px;top:15px;font-size:1.5rem;cursor:pointer;color:#00ffff;
+}
+
 /* RESPONSIVE */
 @media(max-width:600px){
-  input{width:80%;}
-  nav a{margin:0 .5rem;font-size:.9rem;}
+  nav a{margin:0 .3rem;font-size:.9rem;}
   .carousel .caption{font-size:1rem;bottom:40px;padding:.5rem 1rem;}
 }
 </style>
@@ -104,8 +116,8 @@ footer{text-align:center;padding:1rem;font-size:.9rem;color:#aaa;background:rgba
 <header>
   <h1>🚀 DreamTrip Portal</h1>
   <nav>
-    <a href="#" class="nav-link" data-section="home">Home</a>
-    <a href="#" class="nav-link" data-section="list">My List</a>
+    <a href="#" class="nav-link active" data-section="home">Home</a>
+    <a href="#" class="nav-link" data-section="list">Bucket List</a>
     <a href="#" class="nav-link" data-section="mapSection">Map</a>
     <a href="#" class="nav-link" data-section="about">About</a>
   </nav>
@@ -125,16 +137,34 @@ footer{text-align:center;padding:1rem;font-size:.9rem;color:#aaa;background:rgba
   <button id="startBtn">🧭 Begin My Journey</button>
 </section>
 
-<!-- LIST -->
+<!-- BUCKET LIST -->
 <section id="list" class="section">
   <h2>My Travel Bucket List ✈️</h2>
   <p style="color:#aaa;">Add the places that call your soul — from beaches to spaceports!</p>
-  <div class="input-group">
-    <input type="text" id="destinationInput" placeholder="🌍 Type a place... maybe 'Bali', 'Tokyo', or 'The Moon'?">
-    <button id="addBtn">Add Destination ➕</button>
-  </div>
+  <button id="openModalBtn">➕ Add New Destination</button>
   <div class="cards" id="destinationCards"></div>
 </section>
+
+<!-- MODAL FORM -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
+    <span class="close" id="closeModal">&times;</span>
+    <h3>Add New Destination</h3>
+    <label>Destination Name</label>
+    <input type="text" id="destName" placeholder="e.g. Murudeshwar">
+    <label>Country</label>
+    <input type="text" id="destCountry" placeholder="e.g. India">
+    <label>Category</label>
+    <select id="destCategory">
+      <option>Beach</option><option>City</option>
+      <option>Mountains</option><option>Desert</option>
+      <option>Historical</option><option>Other</option>
+    </select>
+    <label>Notes (Optional)</label>
+    <textarea id="destNotes" rows="3" placeholder="Why do you want to visit this place?"></textarea>
+    <button id="addDestinationBtn" style="width:100%;margin-top:10px;">Add Destination</button>
+  </div>
+</div>
 
 <!-- MAP -->
 <section id="mapSection" class="section">
@@ -162,42 +192,51 @@ footer{text-align:center;padding:1rem;font-size:.9rem;color:#aaa;background:rgba
   <p>✨ Crafted for IP Project 2025 | Designed by [Your Name] ✨</p>
 </footer>
 
-<<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
   const links=document.querySelectorAll('.nav-link');
   const sections=document.querySelectorAll('.section');
-  const input=document.getElementById('destinationInput');
-  const addBtn=document.getElementById('addBtn');
-  const cards=document.getElementById('destinationCards');
   const startBtn=document.getElementById('startBtn');
+  const cards=document.getElementById('destinationCards');
+  const modal=document.getElementById('addModal');
+  const openModalBtn=document.getElementById('openModalBtn');
+  const closeModal=document.getElementById('closeModal');
+  const addDestinationBtn=document.getElementById('addDestinationBtn');
   let destinations=JSON.parse(localStorage.getItem('destinations'))||[];
 
+  // Section navigation
   function showSection(id){
+    links.forEach(l=>l.classList.remove('active'));
+    document.querySelector(`[data-section="${id}"]`).classList.add('active');
     sections.forEach(sec=>sec.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+    if(id==="mapSection"){setTimeout(()=>map.invalidateSize(),300);}
   }
-  links.forEach(link=>{
-    link.addEventListener('click',e=>{
-      e.preventDefault();showSection(link.dataset.section);
-      if(link.dataset.section==="mapSection"){setTimeout(()=>map.invalidateSize(),300);}
-    });
-  });
-  if(startBtn){startBtn.addEventListener('click',()=>showSection('list'));}
+  links.forEach(link=>link.addEventListener('click',e=>{
+    e.preventDefault();showSection(link.dataset.section);
+  }));
+  if(startBtn)startBtn.addEventListener('click',()=>showSection('list'));
 
+  // Modal controls
+  openModalBtn.addEventListener('click',()=>modal.style.display='flex');
+  closeModal.addEventListener('click',()=>modal.style.display='none');
+  window.onclick=e=>{if(e.target===modal)modal.style.display='none';}
+
+  // Save & render
   function save(){localStorage.setItem('destinations',JSON.stringify(destinations));}
   function render(){
     cards.innerHTML='';
-    if(destinations.length===0){
-      cards.innerHTML='<p>🧳 No destinations yet... your passport awaits adventure!</p>';
-      return;
-    }
+    if(destinations.length===0){cards.innerHTML='<p>🧳 No destinations yet... your passport awaits adventure!</p>';return;}
     destinations.forEach((dest,i)=>{
       const div=document.createElement('div');
       div.className='card';if(dest.visited)div.classList.add('visited');
       div.innerHTML=`
         <h3>${dest.name}</h3>
+        <p>🌍 ${dest.country}</p>
+        <p>🏖️ ${dest.category}</p>
+        ${dest.notes?`<p>💬 ${dest.notes}</p>`:''}
         <p>Status: ${dest.visited?'🌟 Visited':'💭 Wishlist'}</p>
         <button onclick="toggleVisited(${i})">${dest.visited?'Unmark':'Mark Visited'}</button>
         <button onclick="deleteDest(${i})">Delete</button>`;
@@ -209,59 +248,47 @@ document.addEventListener("DOMContentLoaded",()=>{
   window.toggleVisited=i=>{destinations[i].visited=!destinations[i].visited;save();render();}
   window.deleteDest=i=>{destinations.splice(i,1);save();render();}
 
-  /* === MAP === */
+  // Map
   const map=L.map('map').setView([20,0],2);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    maxZoom:5,minZoom:2,attribution:'© OpenStreetMap'
-  }).addTo(map);
-
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:5,minZoom:2}).addTo(map);
   let markers=[];
   function loadMarkers(){
     markers.forEach(m=>map.removeLayer(m));markers=[];
     destinations.filter(d=>d.coords).forEach(d=>{
-      const m=L.circleMarker(d.coords,{
-        color:'#00ffff',radius:6,fillOpacity:0.9
-      }).addTo(map).bindPopup(`<b>${d.name}</b><br>🌍 ${d.visited?'Visited!':'Wishlist'}`);
+      const m=L.circleMarker(d.coords,{color:'#00ffff',radius:6,fillOpacity:0.9})
+        .addTo(map).bindPopup(`<b>${d.name}</b><br>${d.country}<br>${d.visited?'Visited':'Wishlist'}`);
       markers.push(m);
     });
   }
 
+  // Add via map click
   map.on('click',e=>{
     const name=prompt("🌟 Name this place you've discovered:");
     if(!name)return;
-    const newPlace={name,visited:true,coords:[e.latlng.lat,e.latlng.lng]};
+    const newPlace={name,visited:true,coords:[e.latlng.lat,e.latlng.lng],country:"Unknown",category:"Other",notes:""};
     destinations.push(newPlace);save();render();
   });
 
-  /* === ADD DESTINATION MANUALLY (with geocoding) === */
-  addBtn.addEventListener('click',()=>{
-    const name=input.value.trim();
-    if(!name){alert("✈️ Please enter a place before taking off!");return;}
-    input.value='';
-    // Call free Nominatim API to find coordinates
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name)}`)
+  // Add via modal
+  addDestinationBtn.addEventListener('click',()=>{
+    const name=document.getElementById('destName').value.trim();
+    const country=document.getElementById('destCountry').value.trim();
+    const category=document.getElementById('destCategory').value;
+    const notes=document.getElementById('destNotes').value.trim();
+    if(!name){alert("Please enter destination name!");return;}
+    modal.style.display='none';
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name+" "+country)}`)
       .then(res=>res.json())
       .then(data=>{
-        if(data.length>0){
-          const coords=[parseFloat(data[0].lat),parseFloat(data[0].lon)];
-          destinations.push({name,visited:false,coords});
-          save();render();
-        } else {
-          alert("⚠️ Could not locate that place on the map. Added to list only.");
-          destinations.push({name,visited:false,coords:null});
-          save();render();
-        }
-      })
-      .catch(()=>{
-        alert("🌐 Network issue while locating place.");
-        destinations.push({name,visited:false,coords:null});
+        let coords=null;if(data.length>0)coords=[parseFloat(data[0].lat),parseFloat(data[0].lon)];
+        destinations.push({name,country,category,notes,visited:false,coords});
         save();render();
       });
   });
 
   render();
 
-  /* === CAROUSEL === */
+  // Carousel
   const imgs=document.querySelectorAll('.carousel img');
   const caption=document.querySelector('.carousel .caption');
   const captions=[
@@ -279,7 +306,5 @@ document.addEventListener("DOMContentLoaded",()=>{
   },4000);
 });
 </script>
-
-
 </body>
 </html>
