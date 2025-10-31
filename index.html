@@ -3,12 +3,32 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DreamTrip Portal 🌍</title>
+<title>DreamTrip Portal</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
 *{box-sizing:border-box;scroll-behavior:smooth;}
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.team-member {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.team-member:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.1);
+}
 
 #stars {
   position: fixed;
@@ -225,7 +245,7 @@ footer{text-align:center;padding:1rem;font-size:.9rem;color:#aaa;background:var(
     <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470" alt="Mountains">
     <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1" alt="City">
     <img src="https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef" alt="Desert">
-    <div class="caption">“The world is yours to explore.” 🌏</div>
+    <div class="caption">“The world is yours to explore.” </div>
   </div>
   <h2 style="margin-top:2rem;">Ready for takeoff?</h2>
   <p>Start building your ultimate bucket list of dream destinations.</p>
@@ -234,7 +254,7 @@ footer{text-align:center;padding:1rem;font-size:.9rem;color:#aaa;background:var(
 
 <!-- BUCKET LIST -->
 <section id="list" class="section">
-  <h2>My Travel Bucket List ✈️</h2>
+  <h2>My Travel Bucket List </h2>
   <p style="color:#aaa;">Add the places that call your soul — from beaches to spaceports!</p>
   <button id="openModalBtn">➕ Add New Destination</button>
   <div class="cards" id="destinationCards"></div>
@@ -287,17 +307,33 @@ footer{text-align:center;padding:1rem;font-size:.9rem;color:#aaa;background:var(
 </section>
 
 <!-- ABOUT -->
+<!-- ABOUT -->
 <section id="about" class="section">
   <h2>About This Project 💡</h2>
   <div class="about-box">
     <p>
-      <b>DreamTrip Portal</b> is a futuristic travel planner built for dreamers and explorers.
-      Create your personal map of memories, from the highest peaks to cosmic journeys beyond Earth.
-      <br><br>Crafted with ❤️ using <b>HTML</b>, <b>CSS</b>, <b>JavaScript</b>, and <b>Leaflet Maps</b>.
-      <br><br>“Jobs fill your pocket, but adventures fill your soul.” 🌠
+      <b>DreamTrip Portal</b> is a futuristic travel planner built for dreamers and explorers. 
+      Create your personal map of memories — from the highest peaks to cosmic journeys beyond Earth. 
+      <br><br>
+      Crafted with ❤️ using <b>HTML</b>, <b>CSS</b>, <b>JavaScript</b>, and <b>Leaflet Maps</b>.
+      <br><br>
+      “Jobs fill your pocket, but adventures fill your soul.” 🌠
     </p>
+
+    <hr style="border: none; height: 1px; background: var(--accent); margin: 2rem 0;">
+
+    <h3 style="color: var(--accent); text-align:center;"> Our Team</h3>
+
+    <div class="team-grid">
+      <div class="team-member"><b>Parth Jadhav</b><br>Roll No. 41</div>
+      <div class="team-member"> <b>Viraj Jadhav</b><br>Roll No. 42</div>
+      <div class="team-member"><b>Prakshal Jain</b><br>Roll No. 43</div>
+      <div class="team-member"><b>Jainam Jain</b><br>Roll No. 44</div>
+      <div class="team-member"><b>Aryan Jaiswal</b><br>Roll No. 45</div>
+    </div>
   </div>
 </section>
+
 
 <footer>
   <p>✨ Crafted for IP Project 2025 | Group 9 ✨</p>
